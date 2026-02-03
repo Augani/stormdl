@@ -1,0 +1,12 @@
+[package]
+name = "storm-integrity"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "BLAKE3 incremental hashing and content verification"
+
+[dependencies]
+storm-core.workspace = true
+blake3.workspace = true
+thiserror.workspace = true
+tokio = { workspace = true, features = ["fs"] }

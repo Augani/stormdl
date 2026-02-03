@@ -1,0 +1,33 @@
+[package]
+name = "storm-protocol"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Protocol implementations (HTTP/1.1, HTTP/2, HTTP/3, FTP)"
+
+[dependencies]
+storm-core.workspace = true
+tokio.workspace = true
+async-trait.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+url.workspace = true
+bytes.workspace = true
+futures-util = "0.3"
+
+reqwest.workspace = true
+urlencoding = "2.1"
+parking_lot.workspace = true
+hyper.workspace = true
+rustls.workspace = true
+hickory-resolver.workspace = true
+
+quinn = { workspace = true, optional = true }
+h3 = { workspace = true, optional = true }
+h3-quinn = { workspace = true, optional = true }
+webpki-roots = { version = "0.26", optional = true }
+http = { version = "1.0", optional = true }
+
+[features]
+default = []
+http3 = ["dep:quinn", "dep:h3", "dep:h3-quinn", "dep:webpki-roots", "dep:http"]

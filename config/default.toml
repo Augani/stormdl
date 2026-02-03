@@ -1,0 +1,40 @@
+[general]
+download_dir = "~/Downloads"
+max_concurrent_downloads = 3
+temp_extension = ".storm"
+
+[segments]
+min_segments = 1
+max_segments = 32
+initial_segments = 4
+min_segment_size = "256KB"
+rebalance_interval_ms = 500
+slow_threshold_pct = 20
+
+[connections]
+per_host_limit = 6
+per_host_limit_h2 = 2
+connect_timeout_ms = 5000
+read_timeout_ms = 30000
+tls_session_cache = true
+prefer_h3 = true
+
+[bandwidth]
+global_limit = "0"
+per_download_limit = "0"
+polite_mode = true
+turbo_mode = false
+
+[io]
+write_buffer_size = "1MB"
+flush_interval_ms = 200
+direct_io_threshold = "10MB"
+preallocate = true
+
+[integrity]
+verify_checksums = true
+hash_algorithm = "blake3"
+
+[resume]
+manifest_db = true
+verify_on_resume = true

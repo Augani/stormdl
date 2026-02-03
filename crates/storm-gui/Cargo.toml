@@ -1,0 +1,16 @@
+[package]
+name = "storm-gui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "GPUI + Adabraka UI application"
+
+[dependencies]
+storm-core.workspace = true
+gpui.workspace = true
+adabraka-ui.workspace = true
+flume.workspace = true
+smallvec.workspace = true
+tracing.workspace = true
+url.workspace = true
+bytesize.workspace = true

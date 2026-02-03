@@ -1,0 +1,21 @@
+[package]
+name = "storm-io"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Platform-specific I/O backends with write coalescing"
+
+[dependencies]
+storm-core.workspace = true
+tokio.workspace = true
+async-trait.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+bytes.workspace = true
+parking_lot.workspace = true
+
+[target.'cfg(target_os = "linux")'.dependencies]
+io-uring = "0.7"
+
+[features]
+default = []
