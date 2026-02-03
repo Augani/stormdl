@@ -15,14 +15,14 @@ Next-generation download accelerator with adaptive multi-segment parallel downlo
 ### Quick Install (Linux/macOS)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/augustusotu/stormdl/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Augani/stormdl/main/scripts/install.sh | bash
 ```
 
 ### Package Managers
 
 #### Homebrew (macOS/Linux)
 ```bash
-brew tap augustusotu/stormdl
+brew tap Augani/stormdl
 brew install stormdl
 ```
 
@@ -54,10 +54,10 @@ sudo rpm -i stormdl-0.1.0-1.x86_64.rpm
 
 ```bash
 # Requires Rust 1.70+
-cargo install --git https://github.com/augustusotu/stormdl
+cargo install --git https://github.com/Augani/stormdl
 
 # Or clone and build
-git clone https://github.com/augustusotu/stormdl
+git clone https://github.com/Augani/stormdl
 cd stormdl
 cargo build --release
 ```

@@ -2,9 +2,9 @@
 set -euo pipefail
 
 # StormDL Installer
-# Usage: curl -fsSL https://raw.githubusercontent.com/augustusotu/stormdl/main/scripts/install.sh | bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/Augani/stormdl/main/scripts/install.sh | bash
 
-REPO="augustusotu/stormdl"
+REPO="Augani/stormdl"
 BINARY_NAME="storm"
 INSTALL_DIR="${INSTALL_DIR:-/usr/local/bin}"
 

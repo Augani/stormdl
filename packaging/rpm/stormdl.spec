@@ -4,7 +4,7 @@ Release:        1%{?dist}
 Summary:        Next-generation download accelerator
 
 License:        MIT
-URL:            https://github.com/augustusotu/stormdl
+URL:            https://github.com/Augani/stormdl
 Source0:        %{name}-%{version}.tar.gz
 
 BuildRequires:  rust >= 1.70

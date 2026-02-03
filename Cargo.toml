@@ -16,7 +16,7 @@ version = "0.1.0"
 edition = "2024"
 license = "MIT"
 authors = ["Augustus Otu"]
-repository = "https://github.com/augustusotu/stormdl"
+repository = "https://github.com/Augani/stormdl"
 
 [workspace.dependencies]
 storm-core = { path = "crates/storm-core" }
