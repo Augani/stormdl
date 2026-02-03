@@ -3,7 +3,7 @@ mod orchestrator;
 
 use anyhow::Result;
 use clap::{CommandFactory, Parser, ValueEnum};
-use clap_complete::{generate, Shell};
+use clap_complete::{Shell, generate};
 use std::io;
 use tracing_subscriber::EnvFilter;
 
@@ -110,17 +110,20 @@ fn main() -> Result<()> {
     }
 
     if let Some(url) = args.url {
-        cli::download(&url, cli::DownloadArgs {
-            output: args.output,
-            name: args.name,
-            segments: args.segments,
-            limit: args.limit,
-            turbo: !args.gentle,
-            no_resume: args.no_resume,
-            checksum: args.checksum,
-            quiet: args.quiet,
-            mirrors: args.mirrors,
-        })?;
+        cli::download(
+            &url,
+            cli::DownloadArgs {
+                output: args.output,
+                name: args.name,
+                segments: args.segments,
+                limit: args.limit,
+                turbo: !args.gentle,
+                no_resume: args.no_resume,
+                checksum: args.checksum,
+                quiet: args.quiet,
+                mirrors: args.mirrors,
+            },
+        )?;
     }
 
     Ok(())
@@ -128,9 +131,7 @@ fn main() -> Result<()> {
 
 #[cfg(feature = "gui")]
 fn run_gui() -> Result<()> {
-    let _ = tracing_subscriber::fmt()
-        .with_env_filter("info")
-        .try_init();
+    let _ = tracing_subscriber::fmt().with_env_filter("info").try_init();
 
     let (cmd_tx, cmd_rx) = flume::unbounded();
     let (event_tx, event_rx) = flume::unbounded();

@@ -34,11 +34,7 @@ impl ProtocolNegotiator {
     }
 
     pub async fn detect_http3_support(&self, url: &Url) -> bool {
-        let result = self
-            .client
-            .head(url.clone())
-            .send()
-            .await;
+        let result = self.client.head(url.clone()).send().await;
 
         match result {
             Ok(response) => {

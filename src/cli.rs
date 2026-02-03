@@ -5,8 +5,8 @@ use std::collections::VecDeque;
 use std::fs::File;
 use std::io::{self, Write};
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::time::{Duration, Instant};
 use storm_core::{ByteRange, Downloader, ResourceInfo};
 use storm_protocol::HttpDownloader;
@@ -62,7 +62,8 @@ impl SegmentTracker {
     }
 
     fn remaining(&self) -> u64 {
-        self.total.saturating_sub(self.downloaded.load(Ordering::Relaxed))
+        self.total
+            .saturating_sub(self.downloaded.load(Ordering::Relaxed))
     }
 
     fn is_complete(&self) -> bool {
@@ -179,7 +180,12 @@ impl Progress {
             Some(d) => {
                 let secs = d.as_secs();
                 if secs >= 3600 {
-                    format!("{:02}:{:02}:{:02}", secs / 3600, (secs % 3600) / 60, secs % 60)
+                    format!(
+                        "{:02}:{:02}:{:02}",
+                        secs / 3600,
+                        (secs % 3600) / 60,
+                        secs % 60
+                    )
                 } else {
                     format!("{:02}:{:02}", secs / 60, secs % 60)
                 }
@@ -348,7 +354,15 @@ async fn download_async(url: Url, args: DownloadArgs) -> Result<()> {
     if !info.supports_range || total_size == 0 {
         download_single(&downloader, &url, &output_path, total_size, args.quiet).await?;
     } else {
-        download_segmented_adaptive(&url, &output_path, total_size, num_segments, args.quiet, args.turbo).await?;
+        download_segmented_adaptive(
+            &url,
+            &output_path,
+            total_size,
+            num_segments,
+            args.quiet,
+            args.turbo,
+        )
+        .await?;
     }
 
     if !args.quiet {
@@ -395,7 +409,8 @@ async fn download_single(
 
     let progress_handle = if !quiet && total_size > 0 {
         Some(tokio::spawn(async move {
-            let mut progress = Progress::new(total_size, progress_downloaded, progress_done.clone());
+            let mut progress =
+                Progress::new(total_size, progress_downloaded, progress_done.clone());
             while !progress_done.load(Ordering::Relaxed) {
                 progress.display();
                 tokio::time::sleep(Duration::from_millis(100)).await;
@@ -527,7 +542,9 @@ async fn download_segmented_adaptive(
                         if end > current_pos + 256 * 1024 {
                             let split_point = current_pos + (end - current_pos) / 2;
                             let steal_range = ByteRange::new(split_point, end);
-                            tracker.remaining_start.store(split_point, Ordering::Relaxed);
+                            tracker
+                                .remaining_start
+                                .store(split_point, Ordering::Relaxed);
 
                             rebalance_queue.push(steal_range, idx);
                         }
@@ -539,7 +556,11 @@ async fn download_segmented_adaptive(
         }
     });
 
-    let max_workers = if turbo { num_segments + 8 } else { num_segments + 4 };
+    let max_workers = if turbo {
+        num_segments + 8
+    } else {
+        num_segments + 4
+    };
     let active_workers = Arc::new(AtomicU64::new(0));
     let mut handles = Vec::new();
 
@@ -736,7 +757,8 @@ impl ProgressFileSink {
 impl storm_core::DataSink for ProgressFileSink {
     fn write(&mut self, data: Bytes) -> Result<(), storm_core::StormError> {
         self.file.write_all(&data)?;
-        self.downloaded.fetch_add(data.len() as u64, Ordering::Relaxed);
+        self.downloaded
+            .fetch_add(data.len() as u64, Ordering::Relaxed);
         Ok(())
     }
 

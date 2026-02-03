@@ -1,4 +1,8 @@
-use governor::{Quota, RateLimiter as GovLimiter, clock::DefaultClock, state::{InMemoryState, NotKeyed}};
+use governor::{
+    Quota, RateLimiter as GovLimiter,
+    clock::DefaultClock,
+    state::{InMemoryState, NotKeyed},
+};
 use std::num::NonZeroU32;
 use std::sync::Arc;
 
@@ -17,9 +21,8 @@ impl RateLimiter {
             }
             let chunk_size = 16384u32;
             let chunks_per_second = (bps / chunk_size as u64).max(1) as u32;
-            NonZeroU32::new(chunks_per_second).map(|rate| {
-                Arc::new(GovLimiter::direct(Quota::per_second(rate)))
-            })
+            NonZeroU32::new(chunks_per_second)
+                .map(|rate| Arc::new(GovLimiter::direct(Quota::per_second(rate))))
         });
 
         Self {

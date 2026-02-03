@@ -4,10 +4,13 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Seek, SeekFrom, Write};
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, Instant};
-use storm_core::{ByteRange, DataSink, DownloadId, DownloadState, Downloader, SegmentState, SegmentStatus, StormError};
+use storm_core::{
+    ByteRange, DataSink, DownloadId, DownloadState, Downloader, SegmentState, SegmentStatus,
+    StormError,
+};
 use storm_protocol::HttpDownloader;
 
 #[cfg(feature = "gui")]
@@ -16,7 +19,10 @@ use storm_gui::{DownloadEvent, OrchestratorCommand};
 #[cfg(not(feature = "gui"))]
 #[derive(Debug, Clone)]
 pub enum OrchestratorCommand {
-    AddDownload { url: url::Url, options: storm_core::DownloadOptions },
+    AddDownload {
+        url: url::Url,
+        options: storm_core::DownloadOptions,
+    },
     PauseDownload(DownloadId),
     ResumeDownload(DownloadId),
     CancelDownload(DownloadId),
@@ -26,13 +32,39 @@ pub enum OrchestratorCommand {
 #[cfg(not(feature = "gui"))]
 #[derive(Debug, Clone)]
 pub enum DownloadEvent {
-    DownloadAdded { id: DownloadId, url: url::Url, filename: String, total_size: Option<u64> },
-    ProgressUpdate { id: DownloadId, downloaded: u64, segments: Vec<SegmentState> },
-    SpeedUpdate { id: DownloadId, speed: f64 },
-    StateChange { id: DownloadId, state: DownloadState },
-    SegmentRebalanced { id: DownloadId, old_count: usize, new_count: usize },
-    Error { id: DownloadId, error: String },
-    Complete { id: DownloadId, path: PathBuf, hash: String },
+    DownloadAdded {
+        id: DownloadId,
+        url: url::Url,
+        filename: String,
+        total_size: Option<u64>,
+    },
+    ProgressUpdate {
+        id: DownloadId,
+        downloaded: u64,
+        segments: Vec<SegmentState>,
+    },
+    SpeedUpdate {
+        id: DownloadId,
+        speed: f64,
+    },
+    StateChange {
+        id: DownloadId,
+        state: DownloadState,
+    },
+    SegmentRebalanced {
+        id: DownloadId,
+        old_count: usize,
+        new_count: usize,
+    },
+    Error {
+        id: DownloadId,
+        error: String,
+    },
+    Complete {
+        id: DownloadId,
+        path: PathBuf,
+        hash: String,
+    },
 }
 
 static NEXT_ID: AtomicU64 = AtomicU64::new(1);
@@ -185,7 +217,10 @@ async fn run_download(
     let _ = event_tx.send(DownloadEvent::DownloadAdded {
         id,
         url: url.clone(),
-        filename: info.filename.clone().unwrap_or_else(|| "download".to_string()),
+        filename: info
+            .filename
+            .clone()
+            .unwrap_or_else(|| "download".to_string()),
         total_size: Some(total_size),
     });
 
@@ -209,7 +244,10 @@ async fn run_download(
         .collect();
 
     let downloaded = Arc::new(AtomicU64::new(0));
-    let segment_downloaded: Vec<Arc<AtomicU64>> = segments.iter().map(|_| Arc::new(AtomicU64::new(0))).collect();
+    let segment_downloaded: Vec<Arc<AtomicU64>> = segments
+        .iter()
+        .map(|_| Arc::new(AtomicU64::new(0)))
+        .collect();
 
     let progress_tx = event_tx.clone();
     let progress_downloaded = downloaded.clone();

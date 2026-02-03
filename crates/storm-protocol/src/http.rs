@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use reqwest::{header, Client, StatusCode};
+use reqwest::{Client, StatusCode, header};
 use std::error::Error;
 use std::time::{Duration, Instant};
 use storm_core::{ByteRange, DataSink, Downloader, HttpVersion, ResourceInfo, StormError};
@@ -51,27 +51,25 @@ impl HttpDownloader {
     }
 
     fn parse_content_disposition(header: &str) -> Option<String> {
-        header
-            .split(';')
-            .find_map(|part| {
-                let part = part.trim();
-                if part.starts_with("filename=") {
-                    Some(
-                        part.trim_start_matches("filename=")
-                            .trim_matches('"')
-                            .to_string(),
-                    )
-                } else if part.starts_with("filename*=") {
-                    let encoded = part.trim_start_matches("filename*=");
-                    if let Some(name) = encoded.split("''").nth(1) {
-                        urlencoding::decode(name).ok().map(|s| s.into_owned())
-                    } else {
-                        None
-                    }
+        header.split(';').find_map(|part| {
+            let part = part.trim();
+            if part.starts_with("filename=") {
+                Some(
+                    part.trim_start_matches("filename=")
+                        .trim_matches('"')
+                        .to_string(),
+                )
+            } else if part.starts_with("filename*=") {
+                let encoded = part.trim_start_matches("filename*=");
+                if let Some(name) = encoded.split("''").nth(1) {
+                    urlencoding::decode(name).ok().map(|s| s.into_owned())
                 } else {
                     None
                 }
-            })
+            } else {
+                None
+            }
+        })
     }
 }
 

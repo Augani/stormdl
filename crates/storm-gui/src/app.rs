@@ -47,10 +47,19 @@ impl StormApp {
 
     fn handle_event(&mut self, event: DownloadEvent, cx: &mut Context<Self>) {
         match event {
-            DownloadEvent::DownloadAdded { id, url, filename, total_size } => {
+            DownloadEvent::DownloadAdded {
+                id,
+                url,
+                filename,
+                total_size,
+            } => {
                 self.state.add_download(id, url, filename, total_size);
             }
-            DownloadEvent::ProgressUpdate { id, downloaded, segments } => {
+            DownloadEvent::ProgressUpdate {
+                id,
+                downloaded,
+                segments,
+            } => {
                 if let Some(download) = self.state.get_download_mut(id) {
                     download.downloaded_bytes = downloaded;
                     download.segments = segments;
@@ -99,7 +108,10 @@ impl StormApp {
                 checksum: None,
             };
 
-            let _ = self.state.command_tx.send(OrchestratorCommand::AddDownload { url, options });
+            let _ = self
+                .state
+                .command_tx
+                .send(OrchestratorCommand::AddDownload { url, options });
             self.url_input.update(cx, |input, _| {
                 input.content = SharedString::default();
             });
@@ -131,7 +143,6 @@ impl StormApp {
         })
         .detach();
     }
-
 }
 
 impl Render for StormApp {
@@ -190,95 +201,102 @@ impl Render for StormApp {
                     ),
             )
             .child(
-                div()
-                    .flex_1()
-                    .overflow_hidden()
-                    .child(
-                        scrollable_vertical(
+                div().flex_1().overflow_hidden().child(scrollable_vertical(
+                    div()
+                        .p(px(24.0))
+                        .flex()
+                        .flex_col()
+                        .gap(px(20.0))
+                        .child(
                             div()
-                                .p(px(24.0))
                                 .flex()
                                 .flex_col()
-                                .gap(px(20.0))
+                                .gap(px(8.0))
                                 .child(
                                     div()
-                                        .flex()
-                                        .flex_col()
-                                        .gap(px(8.0))
-                                        .child(
-                                            div()
-                                                .text_size(px(13.0))
-                                                .font_weight(FontWeight::MEDIUM)
-                                                .text_color(theme.tokens.foreground)
-                                                .child("Download URL"),
+                                        .text_size(px(13.0))
+                                        .font_weight(FontWeight::MEDIUM)
+                                        .text_color(theme.tokens.foreground)
+                                        .child("Download URL"),
+                                )
+                                .child(
+                                    Input::new(&self.url_input)
+                                        .placeholder("https://example.com/file.zip")
+                                        .prefix(
+                                            Icon::new("link")
+                                                .size(px(16.0))
+                                                .color(theme.tokens.muted_foreground),
                                         )
-                                        .child(
-                                            Input::new(&self.url_input)
-                                                .placeholder("https://example.com/file.zip")
-                                                .prefix(Icon::new("link").size(px(16.0)).color(theme.tokens.muted_foreground))
-                                                .clearable(true),
-                                        ),
+                                        .clearable(true),
+                                ),
+                        )
+                        .child(
+                            div()
+                                .flex()
+                                .flex_col()
+                                .gap(px(8.0))
+                                .child(
+                                    div()
+                                        .text_size(px(13.0))
+                                        .font_weight(FontWeight::MEDIUM)
+                                        .text_color(theme.tokens.foreground)
+                                        .child("Save to"),
                                 )
                                 .child(
                                     div()
                                         .flex()
-                                        .flex_col()
+                                        .items_center()
                                         .gap(px(8.0))
                                         .child(
                                             div()
-                                                .text_size(px(13.0))
-                                                .font_weight(FontWeight::MEDIUM)
-                                                .text_color(theme.tokens.foreground)
-                                                .child("Save to"),
-                                        )
-                                        .child(
-                                            div()
+                                                .flex_1()
+                                                .h(px(40.0))
+                                                .px(px(12.0))
+                                                .bg(theme.tokens.muted.opacity(0.3))
+                                                .border_1()
+                                                .border_color(theme.tokens.border)
+                                                .rounded(theme.tokens.radius_md)
                                                 .flex()
                                                 .items_center()
                                                 .gap(px(8.0))
                                                 .child(
-                                                    div()
-                                                        .flex_1()
-                                                        .h(px(40.0))
-                                                        .px(px(12.0))
-                                                        .bg(theme.tokens.muted.opacity(0.3))
-                                                        .border_1()
-                                                        .border_color(theme.tokens.border)
-                                                        .rounded(theme.tokens.radius_md)
-                                                        .flex()
-                                                        .items_center()
-                                                        .gap(px(8.0))
-                                                        .child(Icon::new("folder").size(px(16.0)).color(theme.tokens.muted_foreground))
-                                                        .child(
-                                                            div()
-                                                                .text_size(px(14.0))
-                                                                .text_color(theme.tokens.foreground)
-                                                                .text_ellipsis()
-                                                                .overflow_hidden()
-                                                                .child(self.save_location.to_string_lossy().to_string()),
-                                                        ),
+                                                    Icon::new("folder")
+                                                        .size(px(16.0))
+                                                        .color(theme.tokens.muted_foreground),
                                                 )
                                                 .child(
-                                                    Button::new("browse", "Browse")
-                                                        .variant(ButtonVariant::Ghost)
-                                                        .icon("folder-open")
-                                                        .on_click(cx.listener(|this, _, _window, cx| {
-                                                            this.browse_location(cx);
-                                                        })),
+                                                    div()
+                                                        .text_size(px(14.0))
+                                                        .text_color(theme.tokens.foreground)
+                                                        .text_ellipsis()
+                                                        .overflow_hidden()
+                                                        .child(
+                                                            self.save_location
+                                                                .to_string_lossy()
+                                                                .to_string(),
+                                                        ),
                                                 ),
+                                        )
+                                        .child(
+                                            Button::new("browse", "Browse")
+                                                .variant(ButtonVariant::Ghost)
+                                                .icon("folder-open")
+                                                .on_click(cx.listener(|this, _, _window, cx| {
+                                                    this.browse_location(cx);
+                                                })),
                                         ),
-                                )
-                                .child(
-                                    Button::new("download", "Download")
-                                        .icon("download")
-                                        .variant(ButtonVariant::Default)
-                                        .on_click(cx.listener(|this, _, _window, cx| {
-                                            this.start_download(cx);
-                                        })),
-                                )
-                                .child(self.render_downloads_list()),
-                        ),
-                    ),
+                                ),
+                        )
+                        .child(
+                            Button::new("download", "Download")
+                                .icon("download")
+                                .variant(ButtonVariant::Default)
+                                .on_click(cx.listener(|this, _, _window, cx| {
+                                    this.start_download(cx);
+                                })),
+                        )
+                        .child(self.render_downloads_list()),
+                )),
             )
     }
 }
@@ -291,129 +309,147 @@ impl StormApp {
             return div().into_any_element();
         }
 
-        let download_items: Vec<_> = self.state.downloads.iter().rev().map(|download| {
-            let progress = download.progress();
-            let speed = download.current_speed();
-            let state = download.state;
-            let filename = download.filename.clone();
-            let downloaded = download.downloaded_bytes;
-            let total = download.total_bytes;
-            let error = download.error.clone();
+        let download_items: Vec<_> = self
+            .state
+            .downloads
+            .iter()
+            .rev()
+            .map(|download| {
+                let progress = download.progress();
+                let speed = download.current_speed();
+                let state = download.state;
+                let filename = download.filename.clone();
+                let downloaded = download.downloaded_bytes;
+                let total = download.total_bytes;
+                let error = download.error.clone();
 
-            let state_text = match state {
-                DownloadState::Pending => "Pending",
-                DownloadState::Probing => "Probing",
-                DownloadState::Downloading => "Downloading",
-                DownloadState::Paused => "Paused",
-                DownloadState::Complete => "Complete",
-                DownloadState::Failed => "Failed",
-                DownloadState::Cancelled => "Cancelled",
-            };
+                let state_text = match state {
+                    DownloadState::Pending => "Pending",
+                    DownloadState::Probing => "Probing",
+                    DownloadState::Downloading => "Downloading",
+                    DownloadState::Paused => "Paused",
+                    DownloadState::Complete => "Complete",
+                    DownloadState::Failed => "Failed",
+                    DownloadState::Cancelled => "Cancelled",
+                };
 
-            let badge_variant = if state == DownloadState::Complete {
-                BadgeVariant::Secondary
-            } else if state == DownloadState::Failed {
-                BadgeVariant::Destructive
-            } else {
-                BadgeVariant::Outline
-            };
+                let badge_variant = if state == DownloadState::Complete {
+                    BadgeVariant::Secondary
+                } else if state == DownloadState::Failed {
+                    BadgeVariant::Destructive
+                } else {
+                    BadgeVariant::Outline
+                };
 
-            let status_icon = if state == DownloadState::Downloading || state == DownloadState::Probing {
-                Spinner::new().into_any_element()
-            } else if state == DownloadState::Complete {
-                Icon::new("circle-check").size(px(18.0)).color(theme.tokens.primary).into_any_element()
-            } else if state == DownloadState::Failed {
-                Icon::new("circle-x").size(px(18.0)).color(theme.tokens.destructive).into_any_element()
-            } else {
-                Icon::new("file").size(px(18.0)).color(theme.tokens.muted_foreground).into_any_element()
-            };
+                let status_icon =
+                    if state == DownloadState::Downloading || state == DownloadState::Probing {
+                        Spinner::new().into_any_element()
+                    } else if state == DownloadState::Complete {
+                        Icon::new("circle-check")
+                            .size(px(18.0))
+                            .color(theme.tokens.primary)
+                            .into_any_element()
+                    } else if state == DownloadState::Failed {
+                        Icon::new("circle-x")
+                            .size(px(18.0))
+                            .color(theme.tokens.destructive)
+                            .into_any_element()
+                    } else {
+                        Icon::new("file")
+                            .size(px(18.0))
+                            .color(theme.tokens.muted_foreground)
+                            .into_any_element()
+                    };
 
-            let speed_display = if state == DownloadState::Downloading && speed > 0.0 {
-                div()
-                    .text_size(px(12.0))
-                    .text_color(theme.tokens.primary)
-                    .child(format!("{}/s", bytesize::ByteSize(speed as u64)))
-                    .into_any_element()
-            } else {
-                div().into_any_element()
-            };
-
-            let error_display = if let Some(err) = error {
-                div()
-                    .text_size(px(12.0))
-                    .text_color(theme.tokens.destructive)
-                    .child(err)
-                    .into_any_element()
-            } else {
-                div().into_any_element()
-            };
-
-            div()
-                .p(px(16.0))
-                .bg(theme.tokens.card)
-                .border_1()
-                .border_color(theme.tokens.border)
-                .rounded(px(12.0))
-                .flex()
-                .flex_col()
-                .gap(px(12.0))
-                .child(
+                let speed_display = if state == DownloadState::Downloading && speed > 0.0 {
                     div()
-                        .flex()
-                        .items_center()
-                        .justify_between()
-                        .child(
-                            div()
-                                .flex()
-                                .items_center()
-                                .gap(px(8.0))
-                                .child(status_icon)
-                                .child(
-                                    div()
-                                        .text_size(px(14.0))
-                                        .font_weight(FontWeight::MEDIUM)
-                                        .text_color(theme.tokens.foreground)
-                                        .text_ellipsis()
-                                        .overflow_hidden()
-                                        .max_w(px(280.0))
-                                        .child(filename),
-                                ),
-                        )
-                        .child(Badge::new(state_text).variant(badge_variant)),
-                )
-                .child(ProgressBar::new(progress as f32))
-                .child(
+                        .text_size(px(12.0))
+                        .text_color(theme.tokens.primary)
+                        .child(format!("{}/s", bytesize::ByteSize(speed as u64)))
+                        .into_any_element()
+                } else {
+                    div().into_any_element()
+                };
+
+                let error_display = if let Some(err) = error {
                     div()
-                        .flex()
-                        .items_center()
-                        .justify_between()
-                        .child(
-                            div()
-                                .text_size(px(12.0))
-                                .text_color(theme.tokens.muted_foreground)
-                                .child(format!(
-                                    "{} / {}",
-                                    bytesize::ByteSize(downloaded),
-                                    total.map(|t| bytesize::ByteSize(t).to_string()).unwrap_or("?".into())
-                                )),
-                        )
-                        .child(
-                            div()
-                                .flex()
-                                .items_center()
-                                .gap(px(12.0))
-                                .child(speed_display)
-                                .child(
-                                    div()
-                                        .text_size(px(13.0))
-                                        .font_weight(FontWeight::SEMIBOLD)
-                                        .text_color(theme.tokens.foreground)
-                                        .child(format!("{:.1}%", progress * 100.0)),
-                                ),
-                        ),
-                )
-                .child(error_display)
-        }).collect();
+                        .text_size(px(12.0))
+                        .text_color(theme.tokens.destructive)
+                        .child(err)
+                        .into_any_element()
+                } else {
+                    div().into_any_element()
+                };
+
+                div()
+                    .p(px(16.0))
+                    .bg(theme.tokens.card)
+                    .border_1()
+                    .border_color(theme.tokens.border)
+                    .rounded(px(12.0))
+                    .flex()
+                    .flex_col()
+                    .gap(px(12.0))
+                    .child(
+                        div()
+                            .flex()
+                            .items_center()
+                            .justify_between()
+                            .child(
+                                div()
+                                    .flex()
+                                    .items_center()
+                                    .gap(px(8.0))
+                                    .child(status_icon)
+                                    .child(
+                                        div()
+                                            .text_size(px(14.0))
+                                            .font_weight(FontWeight::MEDIUM)
+                                            .text_color(theme.tokens.foreground)
+                                            .text_ellipsis()
+                                            .overflow_hidden()
+                                            .max_w(px(280.0))
+                                            .child(filename),
+                                    ),
+                            )
+                            .child(Badge::new(state_text).variant(badge_variant)),
+                    )
+                    .child(ProgressBar::new(progress as f32))
+                    .child(
+                        div()
+                            .flex()
+                            .items_center()
+                            .justify_between()
+                            .child(
+                                div()
+                                    .text_size(px(12.0))
+                                    .text_color(theme.tokens.muted_foreground)
+                                    .child(format!(
+                                        "{} / {}",
+                                        bytesize::ByteSize(downloaded),
+                                        total
+                                            .map(|t| bytesize::ByteSize(t).to_string())
+                                            .unwrap_or("?".into())
+                                    )),
+                            )
+                            .child(
+                                div()
+                                    .flex()
+                                    .items_center()
+                                    .gap(px(12.0))
+                                    .child(speed_display)
+                                    .child(
+                                        div()
+                                            .text_size(px(13.0))
+                                            .font_weight(FontWeight::SEMIBOLD)
+                                            .text_color(theme.tokens.foreground)
+                                            .child(format!("{:.1}%", progress * 100.0)),
+                                    ),
+                            ),
+                    )
+                    .child(error_display)
+            })
+            .collect();
 
         div()
             .mt(px(16.0))

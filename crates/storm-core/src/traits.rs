@@ -26,8 +26,12 @@ pub trait DataSink: Send {
 #[async_trait]
 pub trait IoBackend: Send + Sync {
     async fn create_file(&self, path: &Path, size: u64) -> Result<FileHandle, StormError>;
-    async fn write_at(&self, handle: &FileHandle, offset: u64, data: &[u8])
-        -> Result<(), StormError>;
+    async fn write_at(
+        &self,
+        handle: &FileHandle,
+        offset: u64,
+        data: &[u8],
+    ) -> Result<(), StormError>;
     async fn sync(&self, handle: &FileHandle) -> Result<(), StormError>;
     async fn close(&self, handle: FileHandle) -> Result<(), StormError>;
 }
