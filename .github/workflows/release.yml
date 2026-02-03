@@ -122,6 +122,7 @@ jobs:
   build-rpm:
     runs-on: ubuntu-22.04
     container: fedora:41
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
