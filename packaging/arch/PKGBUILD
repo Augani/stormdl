@@ -4,11 +4,11 @@ pkgver=0.1.0
 pkgrel=1
 pkgdesc="Next-generation download accelerator with adaptive multi-segment parallel downloads"
 arch=('x86_64' 'aarch64')
-url="https://github.com/Augani/stormdl"
+url="https://github.com/augani/stormdl"
 license=('MIT')
 depends=('openssl')
 makedepends=('rust' 'cargo')
-source=("$pkgname-$pkgver.tar.gz::https://github.com/Augani/stormdl/archive/v$pkgver.tar.gz")
+source=("$pkgname-$pkgver.tar.gz::https://github.com/augani/stormdl/archive/v$pkgver.tar.gz")
 sha256sums=('SKIP')
 
 build() {

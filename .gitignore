@@ -4,3 +4,8 @@ Cargo.lock
 *.storm
 *.storm-manifest
 .DS_Store
+
+# Test files
+100MB.bin
+.claude-tasks.md
+product.md
