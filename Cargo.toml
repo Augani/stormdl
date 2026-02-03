@@ -12,21 +12,21 @@ members = [
 ]
 
 [workspace.package]
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 license = "MIT"
 authors = ["Augustus Otu"]
 repository = "https://github.com/Augani/stormdl"
 
 [workspace.dependencies]
-stormdl-core = { path = "crates/storm-core" }
-stormdl-segment = { path = "crates/storm-segment" }
-stormdl-protocol = { path = "crates/storm-protocol" }
-stormdl-io = { path = "crates/storm-io" }
-stormdl-integrity = { path = "crates/storm-integrity" }
-stormdl-manifest = { path = "crates/storm-manifest" }
-stormdl-bandwidth = { path = "crates/storm-bandwidth" }
-stormdl-gui = { path = "crates/storm-gui" }
+stormdl-core = { version = "0.1", path = "crates/storm-core" }
+stormdl-segment = { version = "0.1", path = "crates/storm-segment" }
+stormdl-protocol = { version = "0.1", path = "crates/storm-protocol" }
+stormdl-io = { version = "0.1", path = "crates/storm-io" }
+stormdl-integrity = { version = "0.1", path = "crates/storm-integrity" }
+stormdl-manifest = { version = "0.1", path = "crates/storm-manifest" }
+stormdl-bandwidth = { version = "0.1", path = "crates/storm-bandwidth" }
+stormdl-gui = { version = "0.1", path = "crates/storm-gui" }
 
 tokio = { version = "1.43", features = ["full"] }
 async-trait = "0.1"
