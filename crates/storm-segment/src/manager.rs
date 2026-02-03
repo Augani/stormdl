@@ -1,7 +1,7 @@
 use crate::splitter::{initial_segments, split_range};
 use parking_lot::RwLock;
 use std::sync::Arc;
-use storm_core::{ByteRange, SegmentState, SegmentStatus};
+use stormdl_core::{ByteRange, SegmentState, SegmentStatus};
 
 pub struct SegmentManager {
     segments: Arc<RwLock<Vec<SegmentState>>>,

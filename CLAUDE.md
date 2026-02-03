@@ -13,7 +13,7 @@ cargo build                          # Build CLI (default)
 cargo build --release                # Release build
 cargo build --features gui           # Build with GUI
 cargo test                           # Run all tests
-cargo test -p storm-core             # Test specific crate
+cargo test -p stormdl-core           # Test specific crate
 cargo run -- <URL>                   # Download a file
 cargo run -- <URL> -s 8              # Download with 8 segments
 cargo run --features gui             # Run GUI (when no URL provided)
@@ -29,14 +29,14 @@ The system is organized into horizontal layers with data flowing downward (URL â
 
 | Crate | Purpose |
 |-------|---------|
-| `storm-core` | Zero-dep types and traits: `ByteRange`, `ResourceInfo`, `DownloadState`, `Downloader` trait, `DataSink` trait |
-| `storm-segment` | Segment manager with adaptive splitting. `SegmentManager` handles split/merge, `Rebalancer` splits slow segments |
-| `storm-protocol` | HTTP client via reqwest. `HttpDownloader` implements `Downloader` trait. HTTP/3 stubbed (feature-gated) |
-| `storm-io` | Platform I/O: `WriteBuffer` for coalescing, `TokioBackend` for async file ops. Platform backends stubbed |
-| `storm-integrity` | BLAKE3 hashing: `IncrementalHasher` for streaming, `verify_content` for validation |
-| `storm-manifest` | SQLite persistence via `Manifest`. Stores downloads and segments for crash recovery |
-| `storm-bandwidth` | `RateLimiter` (token bucket), `DownloadQueue` (priority scheduling), `NetworkMonitor` |
-| `storm-gui` | GPUI + Adabraka UI app. `AppState`, `Download`, channel-based orchestrator communication |
+| `stormdl-core` | Zero-dep types and traits: `ByteRange`, `ResourceInfo`, `DownloadState`, `Downloader` trait, `DataSink` trait |
+| `stormdl-segment` | Segment manager with adaptive splitting. `SegmentManager` handles split/merge, `Rebalancer` splits slow segments |
+| `stormdl-protocol` | HTTP client via reqwest. `HttpDownloader` implements `Downloader` trait. HTTP/3 stubbed (feature-gated) |
+| `stormdl-io` | Platform I/O: `WriteBuffer` for coalescing, `TokioBackend` for async file ops. Platform backends stubbed |
+| `stormdl-integrity` | BLAKE3 hashing: `IncrementalHasher` for streaming, `verify_content` for validation |
+| `stormdl-manifest` | SQLite persistence via `Manifest`. Stores downloads and segments for crash recovery |
+| `stormdl-bandwidth` | `RateLimiter` (token bucket), `DownloadQueue` (priority scheduling), `NetworkMonitor` |
+| `stormdl-gui` | GPUI + Adabraka UI app. `AppState`, `Download`, channel-based orchestrator communication |
 
 ### Key Design Decisions
 
@@ -60,7 +60,7 @@ Progress updates batched to 30/second max.
 
 - `default = ["tui"]` - CLI with terminal UI progress
 - `gui` - GPUI + Adabraka UI desktop app
-- `http3` (storm-protocol) - HTTP/3 via quinn (disabled by default, version compat issues)
+- `http3` (stormdl-protocol) - HTTP/3 via quinn (disabled by default, version compat issues)
 
 ## Configuration
 

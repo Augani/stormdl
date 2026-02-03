@@ -1,7 +1,7 @@
 use parking_lot::RwLock;
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
-use storm_core::{ByteRange, MirrorSet, MirrorStats};
+use stormdl_core::{ByteRange, MirrorSet, MirrorStats};
 
 pub struct MultiSourceManager {
     mirrors: RwLock<MirrorSet>,

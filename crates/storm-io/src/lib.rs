@@ -22,7 +22,7 @@ pub use iocp::IocpBackend;
 
 use async_trait::async_trait;
 use std::path::Path;
-use storm_core::{FileHandle, IoBackend, StormError};
+use stormdl_core::{FileHandle, IoBackend, StormError};
 use tokio::fs::{File, OpenOptions};
 use tokio::io::AsyncWriteExt;
 

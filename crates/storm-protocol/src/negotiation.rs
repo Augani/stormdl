@@ -1,6 +1,6 @@
 use reqwest::Client;
 use std::time::Duration;
-use storm_core::StormError;
+use stormdl_core::StormError;
 use url::Url;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]

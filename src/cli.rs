@@ -11,9 +11,9 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::time::{Duration, Instant};
-use storm_core::{ByteRange, Downloader, ResourceInfo};
-use storm_protocol::HttpDownloader;
-use storm_segment::SegmentManager;
+use stormdl_core::{ByteRange, Downloader, ResourceInfo};
+use stormdl_protocol::HttpDownloader;
+use stormdl_segment::SegmentManager;
 use tokio::sync::Notify;
 use url::Url;
 
@@ -288,16 +288,16 @@ fn calculate_segments(info: &ResourceInfo, args: &DownloadArgs) -> usize {
 
     if let Some(rtt) = info.connection_rtt {
         let estimated_bandwidth = 10_000_000.0;
-        let optimal = storm_segment::optimal_segments(total_size, estimated_bandwidth, rtt);
+        let optimal = stormdl_segment::optimal_segments(total_size, estimated_bandwidth, rtt);
         if args.turbo {
             (optimal * 2).min(32)
         } else {
             optimal
         }
     } else if args.turbo {
-        storm_segment::turbo_segments(total_size)
+        stormdl_segment::turbo_segments(total_size)
     } else {
-        storm_segment::initial_segments(total_size)
+        stormdl_segment::initial_segments(total_size)
     }
 }
 
@@ -379,7 +379,7 @@ async fn download_async(url: Url, args: DownloadArgs) -> Result<()> {
             eprintln!("Verifying checksum...");
         }
         let data = tokio::fs::read(&output_path).await?;
-        let mut hasher = storm_integrity::IncrementalHasher::new();
+        let mut hasher = stormdl_integrity::IncrementalHasher::new();
         hasher.update(&data);
         let actual_hash = hasher.finalize();
 
@@ -759,15 +759,15 @@ impl ProgressFileSink {
     }
 }
 
-impl storm_core::DataSink for ProgressFileSink {
-    fn write(&mut self, data: Bytes) -> Result<(), storm_core::StormError> {
+impl stormdl_core::DataSink for ProgressFileSink {
+    fn write(&mut self, data: Bytes) -> Result<(), stormdl_core::StormError> {
         self.file.write_all(&data)?;
         self.downloaded
             .fetch_add(data.len() as u64, Ordering::Relaxed);
         Ok(())
     }
 
-    fn flush(&mut self) -> Result<(), storm_core::StormError> {
+    fn flush(&mut self) -> Result<(), stormdl_core::StormError> {
         Write::flush(&mut self.file)?;
         Ok(())
     }
@@ -782,8 +782,8 @@ struct AdaptiveSink {
     written: u64,
 }
 
-impl storm_core::DataSink for AdaptiveSink {
-    fn write(&mut self, data: Bytes) -> Result<(), storm_core::StormError> {
+impl stormdl_core::DataSink for AdaptiveSink {
+    fn write(&mut self, data: Bytes) -> Result<(), stormdl_core::StormError> {
         self.file.write_all(&data)?;
         let len = data.len() as u64;
         self.global_downloaded.fetch_add(len, Ordering::Relaxed);
@@ -800,7 +800,7 @@ impl storm_core::DataSink for AdaptiveSink {
         Ok(())
     }
 
-    fn flush(&mut self) -> Result<(), storm_core::StormError> {
+    fn flush(&mut self) -> Result<(), stormdl_core::StormError> {
         Write::flush(&mut self.file)?;
         Ok(())
     }

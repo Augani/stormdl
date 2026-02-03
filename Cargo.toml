@@ -19,14 +19,14 @@ authors = ["Augustus Otu"]
 repository = "https://github.com/Augani/stormdl"
 
 [workspace.dependencies]
-storm-core = { path = "crates/storm-core" }
-storm-segment = { path = "crates/storm-segment" }
-storm-protocol = { path = "crates/storm-protocol" }
-storm-io = { path = "crates/storm-io" }
-storm-integrity = { path = "crates/storm-integrity" }
-storm-manifest = { path = "crates/storm-manifest" }
-storm-bandwidth = { path = "crates/storm-bandwidth" }
-storm-gui = { path = "crates/storm-gui" }
+stormdl-core = { path = "crates/storm-core" }
+stormdl-segment = { path = "crates/storm-segment" }
+stormdl-protocol = { path = "crates/storm-protocol" }
+stormdl-io = { path = "crates/storm-io" }
+stormdl-integrity = { path = "crates/storm-integrity" }
+stormdl-manifest = { path = "crates/storm-manifest" }
+stormdl-bandwidth = { path = "crates/storm-bandwidth" }
+stormdl-gui = { path = "crates/storm-gui" }
 
 tokio = { version = "1.43", features = ["full"] }
 async-trait = "0.1"
@@ -89,14 +89,14 @@ name = "storm"
 path = "src/main.rs"
 
 [dependencies]
-storm-core.workspace = true
-storm-segment.workspace = true
-storm-protocol.workspace = true
-storm-io.workspace = true
-storm-integrity.workspace = true
-storm-manifest.workspace = true
-storm-bandwidth.workspace = true
-storm-gui = { workspace = true, optional = true }
+stormdl-core.workspace = true
+stormdl-segment.workspace = true
+stormdl-protocol.workspace = true
+stormdl-io.workspace = true
+stormdl-integrity.workspace = true
+stormdl-manifest.workspace = true
+stormdl-bandwidth.workspace = true
+stormdl-gui = { workspace = true, optional = true }
 
 tokio.workspace = true
 async-trait.workspace = true
@@ -118,7 +118,7 @@ parking_lot.workspace = true
 
 [features]
 default = ["tui"]
-gui = ["dep:storm-gui"]
+gui = ["dep:stormdl-gui"]
 tui = ["dep:ratatui", "dep:crossterm"]
 
 [package.metadata.deb]

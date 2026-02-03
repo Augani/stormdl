@@ -1,12 +1,12 @@
 [package]
-name = "storm-segment"
+name = "stormdl-segment"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 description = "Segment manager with adaptive splitting algorithm"
 
 [dependencies]
-storm-core.workspace = true
+stormdl-core.workspace = true
 tokio.workspace = true
 tracing.workspace = true
 parking_lot.workspace = true

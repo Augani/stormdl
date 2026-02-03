@@ -12,14 +12,14 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, Instant};
-use storm_core::{
+use stormdl_core::{
     ByteRange, DataSink, DownloadId, DownloadState, Downloader, SegmentState, SegmentStatus,
     StormError,
 };
-use storm_protocol::HttpDownloader;
+use stormdl_protocol::HttpDownloader;
 
 #[cfg(feature = "gui")]
-use storm_gui::{DownloadEvent, OrchestratorCommand};
+use stormdl_gui::{DownloadEvent, OrchestratorCommand};
 
 #[cfg(not(feature = "gui"))]
 #[allow(dead_code)]
@@ -27,7 +27,7 @@ use storm_gui::{DownloadEvent, OrchestratorCommand};
 pub enum OrchestratorCommand {
     AddDownload {
         url: url::Url,
-        options: storm_core::DownloadOptions,
+        options: stormdl_core::DownloadOptions,
     },
     PauseDownload(DownloadId),
     ResumeDownload(DownloadId),
@@ -122,7 +122,7 @@ impl Orchestrator {
         }
     }
 
-    async fn add_download(&mut self, url: url::Url, options: storm_core::DownloadOptions) {
+    async fn add_download(&mut self, url: url::Url, options: stormdl_core::DownloadOptions) {
         let id = next_download_id();
         let event_tx = self.event_tx.clone();
         let downloader = self.downloader.clone();
@@ -215,7 +215,7 @@ async fn run_download(
 
     let total_size = info.size.unwrap_or(0);
     let num_segments = if info.supports_range && total_size > 0 {
-        storm_segment::initial_segments(total_size)
+        stormdl_segment::initial_segments(total_size)
     } else {
         1
     };
@@ -243,7 +243,7 @@ async fn run_download(
         return;
     }
 
-    let segments: Vec<SegmentState> = storm_segment::split_range(total_size, num_segments)
+    let segments: Vec<SegmentState> = stormdl_segment::split_range(total_size, num_segments)
         .iter()
         .enumerate()
         .map(|(idx, range)| SegmentState::new(idx, *range))

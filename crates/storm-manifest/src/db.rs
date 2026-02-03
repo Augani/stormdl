@@ -1,7 +1,7 @@
 use rusqlite::{Connection, Result as SqlResult, params};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
-use storm_core::{ByteRange, DownloadState, StormError};
+use stormdl_core::{ByteRange, DownloadState, StormError};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ManifestEntry {

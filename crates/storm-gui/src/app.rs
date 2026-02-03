@@ -10,7 +10,7 @@ use adabraka_ui::prelude::*;
 use flume::{Receiver, Sender};
 use gpui::*;
 use std::path::PathBuf;
-use storm_core::{DownloadOptions, DownloadState};
+use stormdl_core::{DownloadOptions, DownloadState};
 use url::Url;
 
 pub struct StormApp {
@@ -102,7 +102,7 @@ impl StormApp {
                 output_dir: self.save_location.clone(),
                 filename: None,
                 segments: None,
-                priority: storm_core::Priority::Normal,
+                priority: stormdl_core::Priority::Normal,
                 bandwidth_limit: None,
                 headers: vec![],
                 checksum: None,

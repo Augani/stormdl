@@ -1,12 +1,12 @@
 [package]
-name = "storm-manifest"
+name = "stormdl-manifest"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 description = "SQLite-based download state persistence"
 
 [dependencies]
-storm-core.workspace = true
+stormdl-core.workspace = true
 rusqlite.workspace = true
 thiserror.workspace = true
 serde.workspace = true

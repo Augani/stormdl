@@ -38,7 +38,7 @@ pub fn turbo_segments(file_size: u64) -> usize {
     }
 }
 
-pub fn split_range(total_size: u64, num_segments: usize) -> Vec<storm_core::ByteRange> {
+pub fn split_range(total_size: u64, num_segments: usize) -> Vec<stormdl_core::ByteRange> {
     if num_segments == 0 || total_size == 0 {
         return vec![];
     }
@@ -52,7 +52,7 @@ pub fn split_range(total_size: u64, num_segments: usize) -> Vec<storm_core::Byte
     for i in 0..num_segments {
         let extra = if i < remainder as usize { 1 } else { 0 };
         let size = segment_size + extra;
-        ranges.push(storm_core::ByteRange::new(offset, offset + size));
+        ranges.push(stormdl_core::ByteRange::new(offset, offset + size));
         offset += size;
     }
 
@@ -67,10 +67,10 @@ mod tests {
     fn test_split_range_even() {
         let ranges = split_range(100, 4);
         assert_eq!(ranges.len(), 4);
-        assert_eq!(ranges[0], storm_core::ByteRange::new(0, 25));
-        assert_eq!(ranges[1], storm_core::ByteRange::new(25, 50));
-        assert_eq!(ranges[2], storm_core::ByteRange::new(50, 75));
-        assert_eq!(ranges[3], storm_core::ByteRange::new(75, 100));
+        assert_eq!(ranges[0], stormdl_core::ByteRange::new(0, 25));
+        assert_eq!(ranges[1], stormdl_core::ByteRange::new(25, 50));
+        assert_eq!(ranges[2], stormdl_core::ByteRange::new(50, 75));
+        assert_eq!(ranges[3], stormdl_core::ByteRange::new(75, 100));
     }
 
     #[test]

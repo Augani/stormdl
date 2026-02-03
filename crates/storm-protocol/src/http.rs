@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use reqwest::{Client, StatusCode, header};
 use std::error::Error;
 use std::time::{Duration, Instant};
-use storm_core::{ByteRange, DataSink, Downloader, HttpVersion, ResourceInfo, StormError};
+use stormdl_core::{ByteRange, DataSink, Downloader, HttpVersion, ResourceInfo, StormError};
 use url::Url;
 
 pub struct HttpDownloader {

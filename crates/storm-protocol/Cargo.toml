@@ -1,12 +1,12 @@
 [package]
-name = "storm-protocol"
+name = "stormdl-protocol"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 description = "Protocol implementations (HTTP/1.1, HTTP/2, HTTP/3, FTP)"
 
 [dependencies]
-storm-core.workspace = true
+stormdl-core.workspace = true
 tokio.workspace = true
 async-trait.workspace = true
 thiserror.workspace = true

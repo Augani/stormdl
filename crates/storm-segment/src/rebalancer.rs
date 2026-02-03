@@ -1,6 +1,6 @@
 use crate::SegmentManager;
 use std::sync::Arc;
-use storm_core::SegmentStatus;
+use stormdl_core::SegmentStatus;
 
 pub struct Rebalancer {
     manager: Arc<SegmentManager>,

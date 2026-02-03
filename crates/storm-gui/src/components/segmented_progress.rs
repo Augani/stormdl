@@ -1,6 +1,6 @@
 use adabraka_ui::prelude::*;
 use gpui::*;
-use storm_core::{SegmentState, SegmentStatus};
+use stormdl_core::{SegmentState, SegmentStatus};
 
 pub struct SegmentedProgressBar {
     segments: Vec<SegmentState>,

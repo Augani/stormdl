@@ -143,6 +143,6 @@ fn run_gui() -> Result<()> {
         });
     });
 
-    storm_gui::run_app(cmd_tx, event_rx);
+    stormdl_gui::run_app(cmd_tx, event_rx);
     Ok(())
 }

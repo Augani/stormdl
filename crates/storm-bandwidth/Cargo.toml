@@ -1,12 +1,12 @@
 [package]
-name = "storm-bandwidth"
+name = "stormdl-bandwidth"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 description = "Rate limiting, scheduling, and network monitoring"
 
 [dependencies]
-storm-core.workspace = true
+stormdl-core.workspace = true
 tokio.workspace = true
 governor.workspace = true
 tracing.workspace = true

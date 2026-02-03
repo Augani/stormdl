@@ -274,18 +274,18 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
-          cargo publish -p storm-core || true
+          cargo publish -p stormdl-core || true
           sleep 30
-          cargo publish -p storm-segment || true
+          cargo publish -p stormdl-segment || true
           sleep 30
-          cargo publish -p storm-protocol || true
+          cargo publish -p stormdl-protocol || true
           sleep 30
-          cargo publish -p storm-io || true
+          cargo publish -p stormdl-io || true
           sleep 30
-          cargo publish -p storm-integrity || true
+          cargo publish -p stormdl-integrity || true
           sleep 30
-          cargo publish -p storm-manifest || true
+          cargo publish -p stormdl-manifest || true
           sleep 30
-          cargo publish -p storm-bandwidth || true
+          cargo publish -p stormdl-bandwidth || true
           sleep 30
           cargo publish || true

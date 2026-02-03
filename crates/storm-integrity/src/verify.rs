@@ -1,6 +1,6 @@
 use crate::hasher::hash_bytes;
 use std::path::Path;
-use storm_core::StormError;
+use stormdl_core::StormError;
 
 pub struct ContentVerifier {
     expected_hash: String,

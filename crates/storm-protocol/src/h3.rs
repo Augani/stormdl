@@ -4,7 +4,7 @@ use quinn::{ClientConfig, Endpoint, TransportConfig};
 use std::net::ToSocketAddrs;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
-use storm_core::{ByteRange, DataSink, Downloader, HttpVersion, ResourceInfo, StormError};
+use stormdl_core::{ByteRange, DataSink, Downloader, HttpVersion, ResourceInfo, StormError};
 use url::Url;
 
 pub struct Http3Downloader {

@@ -1,7 +1,7 @@
 use flume::{Receiver, Sender};
 use smallvec::SmallVec;
 use std::path::PathBuf;
-use storm_core::{DownloadId, DownloadOptions, DownloadState, SegmentState};
+use stormdl_core::{DownloadId, DownloadOptions, DownloadState, SegmentState};
 use url::Url;
 
 #[derive(Debug, Clone)]

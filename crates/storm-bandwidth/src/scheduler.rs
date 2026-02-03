@@ -1,7 +1,7 @@
 use parking_lot::Mutex;
 use std::collections::VecDeque;
 use std::sync::Arc;
-use storm_core::{DownloadId, DownloadOptions, Priority};
+use stormdl_core::{DownloadId, DownloadOptions, Priority};
 
 #[derive(Debug, Clone)]
 pub struct QueuedDownload {
