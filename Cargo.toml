@@ -16,7 +16,7 @@ version = "0.1.0"
 edition = "2024"
 license = "MIT"
 authors = ["Augustus Otu"]
-repository = "https://github.com/augani/stormdl"
+repository = "https://github.com/Augani/stormdl"
 
 [workspace.dependencies]
 storm-core = { path = "crates/storm-core" }
@@ -56,8 +56,10 @@ blake3 = "1.5"
 rusqlite = { version = "0.32", features = ["bundled"] }
 governor = "0.8"
 
-gpui = "0.2"
-adabraka-ui = "0.2"
+gpui = "=0.2.1"
+adabraka-ui = "=0.2.4"
+openssl = { version = "0.10", features = ["vendored"] }
+core-text = "=21.0.0"
 
 clap = { version = "4.5", features = ["derive"] }
 ratatui = "0.29"
@@ -75,6 +77,13 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 authors.workspace = true
+repository.workspace = true
+description = "Lightning-fast download accelerator with adaptive multi-segment parallel downloads"
+readme = "README.md"
+keywords = ["download", "accelerator", "parallel", "http", "cli"]
+categories = ["command-line-utilities", "network-programming"]
+homepage = "https://github.com/Augani/stormdl"
+documentation = "https://github.com/augani/stormdl#readme"
 
 [[bin]]
 name = "storm"
@@ -101,6 +110,7 @@ tracing-subscriber.workspace = true
 url.workspace = true
 flume.workspace = true
 clap.workspace = true
+clap_complete = "4.5"
 ratatui = { workspace = true, optional = true }
 crossterm = { workspace = true, optional = true }
 dirs.workspace = true
@@ -113,8 +123,8 @@ gui = ["dep:storm-gui"]
 tui = ["dep:ratatui", "dep:crossterm"]
 
 [package.metadata.deb]
-maintainer = "Augustus Otu <augustus@example.com>"
-copyright = "2024, Augustus Otu"
+maintainer = "Augustus Otu <hello@augustusotu.com>"
+copyright = "2025, Augustus Otu"
 license-file = ["LICENSE", "0"]
 extended-description = """StormDL is a next-generation download accelerator that uses
 adaptive multi-segment parallel downloads to saturate available bandwidth.
@@ -124,13 +134,17 @@ priority = "optional"
 assets = [
     ["target/release/storm", "usr/bin/", "755"],
     ["config/default.toml", "etc/storm-dl/config.toml", "644"],
+    ["dist/completions/storm.bash", "usr/share/bash-completion/completions/storm", "644"],
+    ["dist/completions/storm.zsh", "usr/share/zsh/vendor-completions/_storm", "644"],
+    ["dist/completions/storm.fish", "usr/share/fish/vendor_completions.d/storm.fish", "644"],
 ]
 
 [package.metadata.generate-rpm]
 assets = [
     { source = "target/release/storm", dest = "/usr/bin/storm", mode = "755" },
     { source = "config/default.toml", dest = "/etc/storm-dl/config.toml", mode = "644", config = true },
+    { source = "dist/completions/storm.bash", dest = "/usr/share/bash-completion/completions/storm", mode = "644" },
+    { source = "dist/completions/storm.zsh", dest = "/usr/share/zsh/site-functions/_storm", mode = "644" },
+    { source = "dist/completions/storm.fish", dest = "/usr/share/fish/vendor_completions.d/storm.fish", mode = "644" },
 ]
 
-[package.metadata.generate-rpm.requires]
-openssl = "*"

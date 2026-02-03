@@ -10,68 +10,88 @@ permissions:
 
 env:
   CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
 
 jobs:
   build-binaries:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - target: x86_64-unknown-linux-gnu
-            os: ubuntu-latest
-            archive: tar.gz
+            os: ubuntu-22.04
+            cross: false
           - target: x86_64-unknown-linux-musl
-            os: ubuntu-latest
-            archive: tar.gz
+            os: ubuntu-22.04
+            cross: true
           - target: aarch64-unknown-linux-gnu
-            os: ubuntu-latest
-            archive: tar.gz
+            os: ubuntu-22.04
+            cross: true
           - target: aarch64-unknown-linux-musl
-            os: ubuntu-latest
-            archive: tar.gz
+            os: ubuntu-22.04
+            cross: true
           - target: x86_64-apple-darwin
-            os: macos-latest
-            archive: tar.gz
+            os: macos-13
+            cross: false
           - target: aarch64-apple-darwin
-            os: macos-latest
-            archive: tar.gz
+            os: macos-14
+            cross: false
 
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
+
       - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
 
-      - name: Install cross-compilation tools
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y musl-tools
-          if [[ "${{ matrix.target }}" == "aarch64-unknown-linux-gnu" ]]; then
-            sudo apt-get install -y gcc-aarch64-linux-gnu
-          fi
-          if [[ "${{ matrix.target }}" == "aarch64-unknown-linux-musl" ]]; then
-            sudo apt-get install -y gcc-aarch64-linux-gnu musl-tools
-          fi
+      - name: Install cross
+        if: matrix.cross
+        run: cargo install cross --git https://github.com/cross-rs/cross
 
-      - name: Build
+      - name: Build with cross
+        if: matrix.cross
+        run: cross build --release --target ${{ matrix.target }}
+
+      - name: Build native
+        if: "!matrix.cross"
         run: cargo build --release --target ${{ matrix.target }}
 
       - name: Package
+        shell: bash
         run: |
           cd target/${{ matrix.target }}/release
-          tar -czvf ../../../storm-${{ github.ref_name }}-${{ matrix.target }}.tar.gz storm
+          if [[ "${{ matrix.os }}" == "windows"* ]]; then
+            7z a ../../../storm-${{ github.ref_name }}-${{ matrix.target }}.zip storm.exe
+          else
+            tar -czvf ../../../storm-${{ github.ref_name }}-${{ matrix.target }}.tar.gz storm
+          fi
           cd ../../..
+
+      - name: Generate SHA256
+        shell: bash
+        run: |
+          if [[ "${{ runner.os }}" == "macOS" ]]; then
+            shasum -a 256 storm-${{ github.ref_name }}-${{ matrix.target }}.tar.gz > storm-${{ github.ref_name }}-${{ matrix.target }}.tar.gz.sha256
+          else
+            sha256sum storm-${{ github.ref_name }}-${{ matrix.target }}.tar.gz > storm-${{ github.ref_name }}-${{ matrix.target }}.tar.gz.sha256
+          fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: storm-${{ matrix.target }}
-          path: storm-${{ github.ref_name }}-${{ matrix.target }}.tar.gz
+          path: |
+            storm-${{ github.ref_name }}-${{ matrix.target }}.tar.gz
+            storm-${{ github.ref_name }}-${{ matrix.target }}.tar.gz.sha256
 
   build-deb:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -80,8 +100,18 @@ jobs:
       - name: Install cargo-deb
         run: cargo install cargo-deb
 
+      - name: Build release binary
+        run: cargo build --release
+
+      - name: Generate shell completions
+        run: |
+          mkdir -p dist/completions
+          ./target/release/storm --completions bash > dist/completions/storm.bash
+          ./target/release/storm --completions zsh > dist/completions/storm.zsh
+          ./target/release/storm --completions fish > dist/completions/storm.fish
+
       - name: Build deb package
-        run: cargo deb
+        run: cargo deb --no-build
 
       - name: Upload deb
         uses: actions/upload-artifact@v4
@@ -90,20 +120,27 @@ jobs:
           path: target/debian/*.deb
 
   build-rpm:
-    runs-on: ubuntu-latest
-    container: fedora:latest
+    runs-on: ubuntu-22.04
+    container: fedora:39
     steps:
       - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
-          dnf install -y rust cargo rpm-build
+          dnf install -y rust cargo rpm-build openssl-devel perl-FindBin perl-File-Compare
 
       - name: Install cargo-generate-rpm
         run: cargo install cargo-generate-rpm
 
       - name: Build
         run: cargo build --release
+
+      - name: Generate shell completions
+        run: |
+          mkdir -p dist/completions
+          ./target/release/storm --completions bash > dist/completions/storm.bash
+          ./target/release/storm --completions zsh > dist/completions/storm.zsh
+          ./target/release/storm --completions fish > dist/completions/storm.fish
 
       - name: Generate RPM
         run: cargo generate-rpm
@@ -117,6 +154,11 @@ jobs:
   release:
     needs: [build-binaries, build-deb, build-rpm]
     runs-on: ubuntu-latest
+    outputs:
+      sha256_x64_macos: ${{ steps.checksums.outputs.sha256_x64_macos }}
+      sha256_arm64_macos: ${{ steps.checksums.outputs.sha256_arm64_macos }}
+      sha256_x64_linux: ${{ steps.checksums.outputs.sha256_x64_linux }}
+      sha256_arm64_linux: ${{ steps.checksums.outputs.sha256_arm64_linux }}
     steps:
       - uses: actions/checkout@v4
 
@@ -125,15 +167,28 @@ jobs:
         with:
           path: artifacts
 
-      - name: Create checksums
+      - name: Collect checksums
+        id: checksums
         run: |
           cd artifacts
-          find . -name "*.tar.gz" -o -name "*.deb" -o -name "*.rpm" | while read f; do
-            sha256sum "$f" >> checksums.txt
+          echo "sha256_x64_macos=$(cat storm-x86_64-apple-darwin/*.sha256 | awk '{print $1}')" >> $GITHUB_OUTPUT
+          echo "sha256_arm64_macos=$(cat storm-aarch64-apple-darwin/*.sha256 | awk '{print $1}')" >> $GITHUB_OUTPUT
+          echo "sha256_x64_linux=$(cat storm-x86_64-unknown-linux-musl/*.sha256 | awk '{print $1}')" >> $GITHUB_OUTPUT
+          echo "sha256_arm64_linux=$(cat storm-aarch64-unknown-linux-musl/*.sha256 | awk '{print $1}')" >> $GITHUB_OUTPUT
+
+      - name: Create combined checksums file
+        run: |
+          cd artifacts
+          echo "# SHA256 Checksums" > checksums.txt
+          echo "" >> checksums.txt
+          for dir in storm-*/; do
+            if [ -f "${dir}"*.sha256 ]; then
+              cat "${dir}"*.sha256 >> checksums.txt
+            fi
           done
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             artifacts/**/*.tar.gz
@@ -141,37 +196,95 @@ jobs:
             artifacts/**/*.rpm
             artifacts/checksums.txt
           generate_release_notes: true
+          draft: false
+
+  update-homebrew:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout homebrew tap
+        uses: actions/checkout@v4
+        with:
+          repository: Augani/homebrew-stormdl
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: homebrew-tap
+
+      - name: Update formula
+        run: |
+          VERSION="${{ github.ref_name }}"
+          VERSION_NUM="${VERSION#v}"
+
+          cat > homebrew-tap/Formula/storm.rb << EOF
+          class Storm < Formula
+            desc "Lightning-fast download accelerator with adaptive multi-segment parallel downloads"
+            homepage "https://github.com/Augani/stormdl"
+            version "${VERSION_NUM}"
+            license "MIT"
+
+            on_macos do
+              on_arm do
+                url "https://github.com/Augani/stormdl/releases/download/${VERSION}/storm-${VERSION}-aarch64-apple-darwin.tar.gz"
+                sha256 "${{ needs.release.outputs.sha256_arm64_macos }}"
+              end
+              on_intel do
+                url "https://github.com/Augani/stormdl/releases/download/${VERSION}/storm-${VERSION}-x86_64-apple-darwin.tar.gz"
+                sha256 "${{ needs.release.outputs.sha256_x64_macos }}"
+              end
+            end
+
+            on_linux do
+              on_arm do
+                url "https://github.com/Augani/stormdl/releases/download/${VERSION}/storm-${VERSION}-aarch64-unknown-linux-musl.tar.gz"
+                sha256 "${{ needs.release.outputs.sha256_arm64_linux }}"
+              end
+              on_intel do
+                url "https://github.com/Augani/stormdl/releases/download/${VERSION}/storm-${VERSION}-x86_64-unknown-linux-musl.tar.gz"
+                sha256 "${{ needs.release.outputs.sha256_x64_linux }}"
+              end
+            end
+
+            def install
+              bin.install "storm"
+            end
+
+            test do
+              assert_match "storm", shell_output("#{bin}/storm --version")
+            end
+          end
+          EOF
+
+      - name: Commit and push
+        run: |
+          cd homebrew-tap
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add Formula/storm.rb
+          git commit -m "Update storm to ${{ github.ref_name }}" || exit 0
+          git push
 
   publish-crates:
+    needs: release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
 
       - name: Publish to crates.io
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
-          cargo publish -p storm-core --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          cargo publish -p storm-core || true
           sleep 30
-          cargo publish -p storm-segment --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          cargo publish -p storm-segment || true
           sleep 30
-          cargo publish -p storm-protocol --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          cargo publish -p storm-protocol || true
           sleep 30
-          cargo publish -p storm-io --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          cargo publish -p storm-io || true
           sleep 30
-          cargo publish -p storm-integrity --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          cargo publish -p storm-integrity || true
           sleep 30
-          cargo publish -p storm-manifest --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          cargo publish -p storm-manifest || true
           sleep 30
-          cargo publish -p storm-bandwidth --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          cargo publish -p storm-bandwidth || true
           sleep 30
-          cargo publish --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        continue-on-error: true
-
-  update-homebrew:
-    needs: release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Update Homebrew formula
-        run: |
-          echo "Update homebrew-stormdl tap with new version ${{ github.ref_name }}"
-        # This would trigger a workflow in your homebrew tap repo
+          cargo publish || true

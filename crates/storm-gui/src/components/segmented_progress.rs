@@ -1,4 +1,4 @@
-use crate::theme::colors;
+use adabraka_ui::prelude::*;
 use gpui::*;
 use storm_core::{SegmentState, SegmentStatus};
 
@@ -20,25 +20,27 @@ impl SegmentedProgressBar {
         self
     }
 
-    fn segment_color(status: SegmentStatus) -> Rgba {
+    fn segment_color(status: SegmentStatus) -> Hsla {
         match status {
-            SegmentStatus::Pending => colors::segment_pending(),
-            SegmentStatus::Active => colors::segment_active(),
-            SegmentStatus::Complete => colors::segment_complete(),
-            SegmentStatus::Error => colors::segment_error(),
-            SegmentStatus::Slow => colors::segment_slow(),
+            SegmentStatus::Pending => hsla(0.0, 0.0, 0.29, 1.0),
+            SegmentStatus::Active => hsla(0.58, 1.0, 0.65, 1.0),
+            SegmentStatus::Complete => hsla(0.39, 0.74, 0.58, 1.0),
+            SegmentStatus::Error => hsla(0.0, 0.84, 0.6, 1.0),
+            SegmentStatus::Slow => hsla(0.12, 0.98, 0.56, 1.0),
         }
     }
 }
 
 impl RenderOnce for SegmentedProgressBar {
-    fn render(self, _cx: &mut Window) -> impl IntoElement {
+    fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
+        let theme = use_theme();
+
         if self.segments.is_empty() {
             return div()
                 .w_full()
                 .h(self.height)
                 .rounded_sm()
-                .bg(colors::segment_pending())
+                .bg(theme.tokens.muted)
                 .into_any_element();
         }
 
@@ -48,7 +50,7 @@ impl RenderOnce for SegmentedProgressBar {
                 .w_full()
                 .h(self.height)
                 .rounded_sm()
-                .bg(colors::segment_complete())
+                .bg(theme.tokens.primary)
                 .into_any_element();
         }
 
@@ -59,30 +61,22 @@ impl RenderOnce for SegmentedProgressBar {
             .overflow_hidden()
             .flex()
             .children(self.segments.iter().map(|segment| {
-                let width_pct = (segment.range.len() as f32 / total_len as f32) * 100.0;
-                let fill_pct = segment.progress() as f32 * 100.0;
+                let width_fraction = segment.range.len() as f32 / total_len as f32;
+                let fill_fraction = segment.progress() as f32;
 
                 div()
                     .flex_shrink_0()
                     .h_full()
                     .relative()
-                    .style(|s| {
-                        s.width = Some(Length::Definite(DefiniteLength::Fraction(
-                            width_pct / 100.0,
-                        )));
-                    })
-                    .bg(colors::segment_pending())
+                    .w(relative(width_fraction))
+                    .bg(theme.tokens.muted)
                     .child(
                         div()
                             .absolute()
                             .left_0()
                             .top_0()
                             .h_full()
-                            .style(|s| {
-                                s.width = Some(Length::Definite(DefiniteLength::Fraction(
-                                    fill_pct / 100.0,
-                                )));
-                            })
+                            .w(relative(fill_fraction))
                             .bg(Self::segment_color(segment.status)),
                     )
             }))

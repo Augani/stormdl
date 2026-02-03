@@ -1,0 +1,23 @@
+pkgname=storm-dl
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Lightning-fast download accelerator with adaptive multi-segment parallel downloads"
+arch=('x86_64' 'aarch64')
+url="https://github.com/Augani/stormdl"
+license=('MIT')
+depends=('gcc-libs' 'openssl')
+makedepends=('rust' 'cargo')
+source=("$pkgname-$pkgver.tar.gz::https://github.com/Augani/stormdl/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+    cd "stormdl-$pkgver"
+    cargo build --release --locked
+}
+
+package() {
+    cd "stormdl-$pkgver"
+    install -Dm755 "target/release/storm" "$pkgdir/usr/bin/storm"
+    install -Dm644 "LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+    install -Dm644 "config/default.toml" "$pkgdir/etc/storm-dl/config.toml"
+}

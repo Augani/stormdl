@@ -1,0 +1,18 @@
+pkgname=storm-dl-bin
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Lightning-fast download accelerator with adaptive multi-segment parallel downloads (prebuilt binary)"
+arch=('x86_64' 'aarch64')
+url="https://github.com/Augani/stormdl"
+license=('MIT')
+depends=('gcc-libs')
+provides=('storm-dl')
+conflicts=('storm-dl')
+source_x86_64=("https://github.com/Augani/stormdl/releases/download/v$pkgver/storm-v$pkgver-x86_64-unknown-linux-musl.tar.gz")
+source_aarch64=("https://github.com/Augani/stormdl/releases/download/v$pkgver/storm-v$pkgver-aarch64-unknown-linux-musl.tar.gz")
+sha256sums_x86_64=('SKIP')
+sha256sums_aarch64=('SKIP')
+
+package() {
+    install -Dm755 "storm" "$pkgdir/usr/bin/storm"
+}

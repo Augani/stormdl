@@ -2,7 +2,9 @@ mod cli;
 mod orchestrator;
 
 use anyhow::Result;
-use clap::Parser;
+use clap::{CommandFactory, Parser, ValueEnum};
+use clap_complete::{generate, Shell};
+use std::io;
 use tracing_subscriber::EnvFilter;
 
 #[derive(Parser)]
@@ -54,13 +56,35 @@ struct Args {
     #[arg(short, long, help = "Detailed logging")]
     verbose: bool,
 
+    #[arg(long, value_enum, help = "Generate shell completions")]
+    completions: Option<ShellCompletion>,
+
     #[cfg(feature = "gui")]
     #[arg(long, help = "Launch GUI")]
     gui: bool,
 }
 
+#[derive(Clone, ValueEnum)]
+enum ShellCompletion {
+    Bash,
+    Zsh,
+    Fish,
+    Powershell,
+}
+
 fn main() -> Result<()> {
     let args = Args::parse();
+
+    if let Some(shell) = args.completions {
+        let shell = match shell {
+            ShellCompletion::Bash => Shell::Bash,
+            ShellCompletion::Zsh => Shell::Zsh,
+            ShellCompletion::Fish => Shell::Fish,
+            ShellCompletion::Powershell => Shell::PowerShell,
+        };
+        generate(shell, &mut Args::command(), "storm", &mut io::stdout());
+        return Ok(());
+    }
 
     let filter = if args.verbose {
         EnvFilter::new("debug")
@@ -104,6 +128,10 @@ fn main() -> Result<()> {
 
 #[cfg(feature = "gui")]
 fn run_gui() -> Result<()> {
+    let _ = tracing_subscriber::fmt()
+        .with_env_filter("info")
+        .try_init();
+
     let (cmd_tx, cmd_rx) = flume::unbounded();
     let (event_tx, event_rx) = flume::unbounded();
 

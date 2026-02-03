@@ -151,8 +151,15 @@ impl AppState {
         filename: String,
         total_bytes: Option<u64>,
     ) {
-        let download = Download::new(id, url, filename, total_bytes);
-        self.downloads.push(download);
+        if let Some(existing) = self.get_download_mut(id) {
+            existing.filename = filename;
+            if total_bytes.is_some() {
+                existing.total_bytes = total_bytes;
+            }
+        } else {
+            let download = Download::new(id, url, filename, total_bytes);
+            self.downloads.push(download);
+        }
     }
 
     pub fn get_download(&self, id: DownloadId) -> Option<&Download> {
