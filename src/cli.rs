@@ -1,3 +1,6 @@
+#![allow(clippy::type_complexity)]
+#![allow(clippy::too_many_arguments)]
+
 use anyhow::{Context, Result};
 use bytes::Bytes;
 use parking_lot::{Mutex, RwLock};
@@ -14,6 +17,7 @@ use storm_segment::SegmentManager;
 use tokio::sync::Notify;
 use url::Url;
 
+#[allow(dead_code)]
 pub struct DownloadArgs {
     pub output: Option<String>,
     pub name: Option<String>,
@@ -98,6 +102,7 @@ impl WorkQueue {
     }
 }
 
+#[allow(dead_code)]
 struct Progress {
     total: u64,
     downloaded: Arc<AtomicU64>,
@@ -471,7 +476,7 @@ async fn download_segmented_adaptive(
     let work_queue = Arc::new(WorkQueue::new());
 
     for (idx, segment) in segments.iter().enumerate() {
-        work_queue.push(segment.range.clone(), idx);
+        work_queue.push(segment.range, idx);
     }
 
     let progress_downloaded = downloaded.clone();
@@ -720,7 +725,7 @@ async fn download_range(
     file.seek(SeekFrom::Start(range.start))?;
 
     let tracker = &trackers[segment_idx];
-    let range_size = range.len();
+    let _range_size = range.len();
 
     let mut sink = AdaptiveSink {
         file,

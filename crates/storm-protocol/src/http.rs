@@ -114,7 +114,7 @@ impl Downloader for HttpDownloader {
             let size = headers
                 .get(header::CONTENT_RANGE)
                 .and_then(|v| v.to_str().ok())
-                .and_then(|s| s.split('/').last())
+                .and_then(|s| s.split('/').next_back())
                 .and_then(|s| s.parse().ok());
             (size, true)
         } else {
@@ -151,7 +151,7 @@ impl Downloader for HttpDownloader {
             .and_then(Self::parse_content_disposition)
             .or_else(|| {
                 url.path_segments()
-                    .and_then(|segments| segments.last())
+                    .and_then(|mut segments| segments.next_back())
                     .filter(|s| !s.is_empty())
                     .map(String::from)
             });

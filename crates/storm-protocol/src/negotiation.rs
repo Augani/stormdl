@@ -3,18 +3,13 @@ use std::time::Duration;
 use storm_core::StormError;
 use url::Url;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum PreferredProtocol {
     Http1,
     Http2,
     Http3,
+    #[default]
     Auto,
-}
-
-impl Default for PreferredProtocol {
-    fn default() -> Self {
-        Self::Auto
-    }
 }
 
 pub struct ProtocolNegotiator {
@@ -37,14 +32,12 @@ impl ProtocolNegotiator {
         let result = self.client.head(url.clone()).send().await;
 
         match result {
-            Ok(response) => {
-                if let Some(alt_svc) = response.headers().get("alt-svc") {
-                    if let Ok(value) = alt_svc.to_str() {
-                        return value.contains("h3");
-                    }
-                }
-                false
-            }
+            Ok(response) => response
+                .headers()
+                .get("alt-svc")
+                .and_then(|v| v.to_str().ok())
+                .map(|v| v.contains("h3"))
+                .unwrap_or(false),
             Err(_) => false,
         }
     }

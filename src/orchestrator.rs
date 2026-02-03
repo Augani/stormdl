@@ -1,3 +1,8 @@
+#![allow(dead_code)]
+#![allow(clippy::large_enum_variant)]
+#![allow(clippy::redundant_closure)]
+#![allow(clippy::clone_on_copy)]
+
 use bytes::Bytes;
 use flume::{Receiver, Sender};
 use std::collections::HashMap;
@@ -17,6 +22,7 @@ use storm_protocol::HttpDownloader;
 use storm_gui::{DownloadEvent, OrchestratorCommand};
 
 #[cfg(not(feature = "gui"))]
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub enum OrchestratorCommand {
     AddDownload {
@@ -123,7 +129,7 @@ impl Orchestrator {
 
         let filename = options.filename.clone().unwrap_or_else(|| {
             url.path_segments()
-                .and_then(|s| s.last())
+                .and_then(|mut s| s.next_back())
                 .unwrap_or("download")
                 .to_string()
         });

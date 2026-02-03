@@ -7,6 +7,7 @@ pub struct MultiSourceManager {
     mirrors: RwLock<MirrorSet>,
     segment_assignments: RwLock<HashMap<usize, usize>>,
     source_stats: RwLock<HashMap<usize, SourceStats>>,
+    #[allow(dead_code)]
     total_size: u64,
 }
 
@@ -46,7 +47,7 @@ impl MultiSourceManager {
         }
     }
 
-    pub fn assign_segment(&self, segment_idx: usize, range: ByteRange) -> usize {
+    pub fn assign_segment(&self, segment_idx: usize, _range: ByteRange) -> usize {
         let mirrors = self.mirrors.read();
         let source_idx = mirrors.select_for_segment(segment_idx);
         drop(mirrors);

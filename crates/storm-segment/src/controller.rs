@@ -49,10 +49,7 @@ impl AdaptiveController {
         }
 
         let current = self.current_segments.load(Ordering::Relaxed);
-
-        let Some(bdp) = bdp else {
-            return None;
-        };
+        let bdp = bdp?;
 
         let tcp_window = 65536u64;
         let optimal = ((bdp as f64) / (tcp_window as f64)).ceil() as usize;

@@ -2,17 +2,12 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use url::Url;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum MirrorPriority {
     Primary,
+    #[default]
     Secondary,
     Fallback,
-}
-
-impl Default for MirrorPriority {
-    fn default() -> Self {
-        Self::Secondary
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
