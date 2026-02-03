@@ -58,7 +58,6 @@ governor = "0.8"
 
 gpui = "=0.2.1"
 adabraka-ui = "=0.2.4"
-openssl = { version = "0.10", features = ["vendored"] }
 core-text = "=21.0.0"
 
 clap = { version = "4.5", features = ["derive"] }
