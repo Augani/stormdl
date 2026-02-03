@@ -1,0 +1,27 @@
+# Contributor: Augustus Otu <augustus@example.com>
+# Maintainer: Augustus Otu <augustus@example.com>
+pkgname=stormdl
+pkgver=0.1.0
+pkgrel=0
+pkgdesc="Next-generation download accelerator with adaptive multi-segment parallel downloads"
+url="https://github.com/augustusotu/stormdl"
+arch="x86_64 aarch64"
+license="MIT"
+makedepends="cargo openssl-dev"
+subpackages="$pkgname-doc"
+source="$pkgname-$pkgver.tar.gz::https://github.com/augustusotu/stormdl/archive/v$pkgver.tar.gz"
+
+build() {
+	cargo build --release --locked
+}
+
+check() {
+	cargo test --release --locked
+}
+
+package() {
+	install -Dm755 "target/release/storm" "$pkgdir/usr/bin/storm"
+	install -Dm644 "config/default.toml" "$pkgdir/etc/storm-dl/config.toml"
+}
+
+sha512sums="SKIP"

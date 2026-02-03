@@ -1,0 +1,21 @@
+Source: stormdl
+Section: net
+Priority: optional
+Maintainer: Augustus Otu <augustus@example.com>
+Build-Depends: debhelper (>= 12), cargo, rustc, libssl-dev
+Standards-Version: 4.5.0
+Homepage: https://github.com/augustusotu/stormdl
+
+Package: stormdl
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Next-generation download accelerator
+ StormDL is a next-generation download accelerator that uses adaptive
+ multi-segment parallel downloads to saturate available bandwidth.
+ .
+ Features:
+  - HTTP/1.1, HTTP/2, HTTP/3 (QUIC) support
+  - Adaptive segment splitting based on bandwidth-delay product
+  - Multi-source/mirror downloads
+  - Resume support with integrity verification
+  - Terminal UI with per-segment progress
